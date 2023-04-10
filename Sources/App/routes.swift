@@ -2,6 +2,7 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
+    
     // localhost:8080/ -> It works!
     app.get { req async in
         "It works!"
@@ -64,6 +65,18 @@ func routes(_ app: Application) throws {
     app.get("value", "**") { req async -> String in
         let value = req.parameters.getCatchall().joined(separator: " ")
         return "Hello \(value)!"
+    }
+    
+    app.group("stores") { stores in
+        
+        // localhost:8080/stores/originalTransactionId/<originalTransactionId parameters>
+        // Ex：localhost:8080/stores/originalTransactionId/111 -> originalTransactionId：111
+        stores.get("originalTransactionId", ":id") { req async throws -> String in
+            guard let originalTransactionId = req.parameters.get("id") else {
+                throw Abort(.badRequest)
+            }
+            return "originalTransactionId：\(originalTransactionId)"
+        }
     }
     
     try app.register(collection: TodoController())
